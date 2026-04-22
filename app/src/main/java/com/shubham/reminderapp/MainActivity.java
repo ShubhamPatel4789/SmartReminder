@@ -1,8 +1,10 @@
 package com.shubham.reminderapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -15,6 +17,8 @@ public class MainActivity extends Activity {
     private DatabaseHelper db;
     private List<Reminder> list;
     static final int REQ_ADD=1, REQ_EDIT=2;
+    private static final int REQ_POST_NOTIFICATIONS = 10;
+    private static final int REQ_EXACT_ALARM = 11;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -54,6 +58,8 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+
+        requestRuntimePermissions();
     }
 
     private void load() {
@@ -63,6 +69,35 @@ public class MainActivity extends Activity {
         findViewById(R.id.tv_empty).setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
-    @Override protected void onActivityResult(int req, int res, Intent data) { if(res==RESULT_OK) load(); }
+    private void requestRuntimePermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !PermissionUtils.hasPostNotificationsPermission(this)) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_POST_NOTIFICATIONS);
+        }
+        if (!PermissionUtils.canScheduleExactAlarms(this)) {
+            try {
+                PermissionUtils.requestExactAlarmPermission(this, REQ_EXACT_ALARM);
+            } catch (Exception ignored) {
+                Toast.makeText(this, "Exact alarm access denied. Using inexact reminders.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req == REQ_EXACT_ALARM && !PermissionUtils.canScheduleExactAlarms(this)) {
+            Toast.makeText(this, "Exact alarm access not granted. Using inexact reminders.", Toast.LENGTH_SHORT).show();
+        }
+        if(res==RESULT_OK) load();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_POST_NOTIFICATIONS && !PermissionUtils.hasPostNotificationsPermission(this)) {
+            Toast.makeText(this, "Notifications are disabled until permission is granted.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override protected void onResume() { super.onResume(); load(); }
 }
