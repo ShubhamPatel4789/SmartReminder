@@ -22,6 +22,7 @@ public class AlarmScheduler {
                 try {
                     am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
                 } catch (SecurityException e) {
+                    // Permission state can change between check and schedule; fallback keeps reminder delivery.
                     am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
                 }
             } else {

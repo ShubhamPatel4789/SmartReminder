@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Smart Reminder</string>
+    <string name="msg_exact_alarm_fallback">Exact alarm access denied. Using inexact reminders.</string>
+    <string name="msg_notifications_denied">Notifications are disabled until permission is granted.</string>
 </resources>
