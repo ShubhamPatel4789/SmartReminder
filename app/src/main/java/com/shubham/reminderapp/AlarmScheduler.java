@@ -5,19 +5,30 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 import java.util.Calendar;
 
 public class AlarmScheduler {
+    private static final String TAG = "AlarmScheduler";
 
     public static void schedule(Context ctx, Reminder r) {
         if (!r.isEnabled()) return;
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
         PendingIntent pi = buildPI(ctx, r);
         long trigger = r.getDatetimeMillis();
         if (!r.isRecurring() && trigger < System.currentTimeMillis()) return;
-        if (Build.VERSION.SDK_INT >= 23)
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
-        else
+        if (Build.VERSION.SDK_INT >= 23) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !PermissionHelper.canScheduleExactAlarms(ctx))
+                    am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                else
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+            } catch (SecurityException ignored) {
+                Log.w(TAG, "Exact alarm permission denied, falling back to inexact alarm");
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+            }
+        } else
             am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi);
     }
 

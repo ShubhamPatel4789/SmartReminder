@@ -24,10 +24,13 @@ jobs:
 
       - name: Download bundletool
         run: |
+          # Bundletool 1.17.2 is compatible with Android 14/APK set generation.
           curl -L -o bundletool.jar https://github.com/google/bundletool/releases/download/1.17.2/bundletool-all-1.17.2.jar
 
       - name: Build universal APK from AAB
         run: |
+          # Temporary signing setup: uses debug keystore for CI artifacts.
+          # For production installs, replace with your own release keystore credentials.
           java -jar bundletool.jar build-apks \
             --bundle=app/build/outputs/bundle/release/app-release.aab \
             --output=app-release.apks \
@@ -38,6 +41,12 @@ jobs:
             --key-pass=pass:android
 
           unzip -o app-release.apks universal.apk
+
+      - name: Verify build output
+        run: |
+          test -f app/build/outputs/bundle/release/app-release.aab
+          test -f universal.apk
+          ls -lh app/build/outputs/bundle/release/app-release.aab universal.apk
 
       - name: Upload universal APK
         uses: actions/upload-artifact@v4
