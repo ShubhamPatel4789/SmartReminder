@@ -7,6 +7,7 @@ android {
     compileSdkVersion 33
 
     defaultConfig {
+        // keep .test temporarily to avoid signature conflict with previously installed variants
         applicationId "com.shubham.reminderapp.test"
         minSdkVersion 21
         targetSdkVersion 33
@@ -15,11 +16,13 @@ android {
     }
 
     buildTypes {
+        debug {}
+
         release {
             minifyEnabled false
+            // no keystore needed now; signs with debug key for testing install
             signingConfig signingConfigs.debug
         }
-        debug {}
     }
 
     compileOptions {
