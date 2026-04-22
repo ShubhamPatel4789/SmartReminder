@@ -4,15 +4,26 @@ plugins {
 
 android {
     namespace "com.shubham.reminderapp"
-    compileSdkVersion 33
+    compileSdkVersion 34
 
     defaultConfig {
-        // keep .test temporarily to avoid signature conflict with previously installed variants
-        applicationId "com.shubham.reminderapp.test"
+        applicationId "com.shubham.reminderapp"
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionCode 2
         versionName "1.0.1"
+    }
+
+    signingConfigs {
+        release {
+            // Temporary default for CI/testing: debug keystore.
+            // Replace these env vars with your own release keystore values for production:
+            // SMARTREMINDER_KEYSTORE_PATH, SMARTREMINDER_KEY_ALIAS, SMARTREMINDER_KEYSTORE_PASSWORD, SMARTREMINDER_KEY_PASSWORD
+            storeFile file(System.getenv("SMARTREMINDER_KEYSTORE_PATH") ?: "${System.properties['user.home']}/.android/debug.keystore")
+            storePassword System.getenv("SMARTREMINDER_KEYSTORE_PASSWORD") ?: "android"
+            keyAlias System.getenv("SMARTREMINDER_KEY_ALIAS") ?: "androiddebugkey"
+            keyPassword System.getenv("SMARTREMINDER_KEY_PASSWORD") ?: "android"
+        }
     }
 
     buildTypes {
@@ -20,8 +31,7 @@ android {
 
         release {
             minifyEnabled false
-            // no keystore needed now; signs with debug key for testing install
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 
