@@ -23,7 +23,7 @@ jobs:
 
           w("build.gradle", """buildscript {
               repositories { google(); mavenCentral() }
-              dependencies { classpath "com.android.tools.build:gradle:7.4.2" }
+              dependencies { classpath "com.android.tools.build:gradle:8.3.2" }
           }
           allprojects { repositories { google(); mavenCentral() } }
           """)
@@ -42,11 +42,11 @@ jobs:
 
           w("app/build.gradle", """plugins { id "com.android.application" }
           android {
-              compileSdkVersion 33
+              compileSdkVersion 34
               defaultConfig {
                   applicationId "com.shubham.reminderapp"
                   minSdkVersion 21
-                  targetSdkVersion 33
+                  targetSdkVersion 34
                   versionCode 1
                   versionName "1.0"
               }
@@ -405,7 +405,16 @@ jobs:
           w(f"{RES}/values/strings.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">Smart Reminder</string>\n</resources>\n')
           w(f"{RES}/values/colors.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="green">#27AE60</color>\n    <color name="white">#FFFFFF</color>\n    <color name="bg">#F0F4F8</color>\n</resources>\n')
           w(f"{RES}/values/styles.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">\n        <item name="colorPrimary">#27AE60</item>\n        <item name="colorAccent">#27AE60</item>\n        <item name="android:windowBackground">@color/bg</item>\n    </style>\n</resources>\n')
-          w(f"{RES}/mipmap-hdpi/ic_launcher.png","")  # placeholder, gradle won't fail
+          w(f"{RES}/mipmap-hdpi/ic_launcher.png","")  # placeholder
+
+          # Write Gradle wrapper properties directly — pin to 8.7
+          w("gradle/wrapper/gradle-wrapper.properties",
+            "distributionBase=GRADLE_USER_HOME\n"
+            "distributionPath=wrapper/dists\n"
+            "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip\n"
+            "zipStoreBase=GRADLE_USER_HOME\n"
+            "zipStorePath=wrapper/dists\n")
+
           print("All files generated!")
           PYEOF
 
@@ -415,19 +424,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Gradle and create wrapper
+      - name: Download Gradle 8.7 and extract wrapper jar
         run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
-          unzip -q gradle-8.4-bin.zip
-          export GRADLE_HOME=$PWD/gradle-8.4
-          export PATH=$PATH:$GRADLE_HOME/bin
-          gradle wrapper --gradle-version 8.4
+          wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip
+          unzip -q gradle-8.7-bin.zip
+          mkdir -p gradle/wrapper
+          cp gradle-8.7/lib/plugins/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar
+          # Write standard gradlew launcher script
+          cat > gradlew << 'GRADLEW_SCRIPT'
+          #!/bin/sh
+          APP_HOME="$(cd "$(dirname "$0")" && pwd -P)"
+          CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+          exec "$JAVA_HOME/bin/java" -cp "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+          GRADLEW_SCRIPT
           chmod +x gradlew
 
       - name: Build Debug APK
-        run: |
-          export JAVA_HOME=$JAVA_HOME_17_X64
-          ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
