@@ -38,6 +38,7 @@ jobs:
 
           w("app/build.gradle", """plugins { id "com.android.application" }
           android {
+              namespace "com.shubham.reminderapp"
               compileSdkVersion 33
               defaultConfig {
                   applicationId "com.shubham.reminderapp"
@@ -60,8 +61,7 @@ jobs:
 
           # ── AndroidManifest ────────────────────────────────────────────
           w("app/src/main/AndroidManifest.xml", """<?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="com.shubham.reminderapp">
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
               <uses-permission android:name="android.permission.VIBRATE"/>
               <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -71,7 +71,7 @@ jobs:
               <application android:label="Smart Reminder"
                   android:theme="@style/AppTheme"
                   android:allowBackup="true"
-                  android:icon="@mipmap/ic_launcher">
+                  android:icon="@android:drawable/ic_popup_reminder">
                   <activity android:name=".MainActivity" android:exported="true">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN"/>
@@ -401,7 +401,8 @@ jobs:
           w(f"{RES}/values/strings.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">Smart Reminder</string>\n</resources>\n')
           w(f"{RES}/values/colors.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="green">#27AE60</color>\n    <color name="white">#FFFFFF</color>\n    <color name="bg">#F0F4F8</color>\n</resources>\n')
           w(f"{RES}/values/styles.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">\n        <item name="colorPrimary">#27AE60</item>\n        <item name="colorAccent">#27AE60</item>\n        <item name="android:windowBackground">@color/bg</item>\n    </style>\n</resources>\n')
-          w(f"{RES}/mipmap-hdpi/ic_launcher.png","")  # placeholder, gradle won't fail
+          
+          # placeholder ic_launcher.png removed as it causes aapt2 errors
           print("All files generated!")
           PYEOF
 
@@ -411,15 +412,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Gradle and setup Wrapper
-        run: |
-          wget -q https://services.gradle.org/distributions/gradle-7.6.4-bin.zip
-          unzip -q gradle-7.6.4-bin.zip
-          ./gradle-7.6.4/bin/gradle wrapper --gradle-version 7.6.4
-          chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 7.6.4
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
