@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#F0F4F8">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:background="#27AE60" android:gravity="center_vertical"
+        android:paddingLeft="16dp" android:paddingRight="16dp" android:elevation="4dp">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="Smart Reminder"
+            android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold"/>
+    </LinearLayout>
+
+    <TextView android:id="@+id/tv_empty" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1"
+        android:gravity="center" android:visibility="gone"
+        android:text="No reminders yet.&#10;Tap + to add one!"
+        android:textSize="16sp" android:textColor="#888888"/>
+
+    <ListView android:id="@+id/lv" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1"
+        android:divider="@null" android:padding="8dp" android:clipToPadding="false"/>
+
+    <Button android:id="@+id/btn_add" android:layout_width="match_parent"
+        android:layout_height="52dp" android:layout_margin="12dp"
+        android:text="+ ADD REMINDER" android:textColor="#FFFFFF"
+        android:background="#27AE60" android:textStyle="bold" android:textSize="15sp"/>
+</LinearLayout>
