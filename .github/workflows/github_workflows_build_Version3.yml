@@ -19,10 +19,8 @@ jobs:
         with:
           gradle-version: 7.6.4
 
-      - run: chmod +x gradlew
-
       - name: Build release bundle
-        run: ./gradlew bundleRelease --stacktrace
+        run: gradle bundleRelease --stacktrace
 
       - name: Download bundletool
         run: |
