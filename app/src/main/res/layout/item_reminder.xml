@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:background="#FFFFFF"
+    android:layout_marginLeft="8dp" android:layout_marginRight="8dp"
+    android:layout_marginBottom="6dp" android:elevation="2dp">
+
+    <View android:id="@+id/color_bar" android:layout_width="5dp"
+        android:layout_height="match_parent" android:background="#27AE60"/>
+
+    <TextView android:id="@+id/tv_emoji" android:layout_width="44dp"
+        android:layout_height="match_parent" android:gravity="center"
+        android:textSize="20sp" android:paddingTop="14dp"/>
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical"
+        android:paddingTop="10dp" android:paddingBottom="10dp" android:paddingLeft="4dp">
+        <TextView android:id="@+id/tv_title" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="15sp"
+            android:textStyle="bold" android:textColor="#1A1A1A"/>
+        <TextView android:id="@+id/tv_dt" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="12sp"
+            android:textColor="#666666" android:paddingTop="2dp"/>
+        <TextView android:id="@+id/tv_recur" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="11sp"
+            android:textColor="#27AE60" android:paddingTop="2dp" android:visibility="gone"/>
+    </LinearLayout>
+
+    <Switch android:id="@+id/sw" android:layout_width="wrap_content"
+        android:layout_height="match_parent" android:paddingRight="12dp"/>
+</LinearLayout>
