@@ -19,6 +19,9 @@ android {
             // Temporary default for CI/testing: debug keystore.
             // Replace these env vars with your own release keystore values for production:
             // SMARTREMINDER_KEYSTORE_PATH, SMARTREMINDER_KEY_ALIAS, SMARTREMINDER_KEYSTORE_PASSWORD, SMARTREMINDER_KEY_PASSWORD
+            if (!System.getenv("SMARTREMINDER_KEYSTORE_PATH")) {
+                println "WARNING: Using debug keystore for release signing. configure SMARTREMINDER_KEYSTORE_PATH for production builds."
+            }
             storeFile file(System.getenv("SMARTREMINDER_KEYSTORE_PATH") ?: "${System.properties['user.home']}/.android/debug.keystore")
             storePassword System.getenv("SMARTREMINDER_KEYSTORE_PASSWORD") ?: "android"
             keyAlias System.getenv("SMARTREMINDER_KEY_ALIAS") ?: "androiddebugkey"

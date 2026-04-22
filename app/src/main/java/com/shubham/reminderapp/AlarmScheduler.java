@@ -18,7 +18,7 @@ public class AlarmScheduler {
         if (!r.isRecurring() && trigger < System.currentTimeMillis()) return;
         if (Build.VERSION.SDK_INT >= 23) {
             try {
-                if (Build.VERSION.SDK_INT >= 31 && !PermissionHelper.canScheduleExactAlarms(ctx))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !PermissionHelper.canScheduleExactAlarms(ctx))
                     am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
                 else
                     am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
