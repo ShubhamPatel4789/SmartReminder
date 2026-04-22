@@ -23,7 +23,7 @@ jobs:
 
           w("build.gradle", """buildscript {
               repositories { google(); mavenCentral() }
-              dependencies { classpath "com.android.tools.build:gradle:7.4.2" }
+              dependencies { classpath "com.android.tools.build:gradle:7.6.4" }
           }
           allprojects { repositories { google(); mavenCentral() } }
           """)
@@ -405,7 +405,7 @@ jobs:
           w(f"{RES}/values/strings.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">Smart Reminder</string>\n</resources>\n')
           w(f"{RES}/values/colors.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="green">#27AE60</color>\n    <color name="white">#FFFFFF</color>\n    <color name="bg">#F0F4F8</color>\n</resources>\n')
           w(f"{RES}/values/styles.xml",'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">\n        <item name="colorPrimary">#27AE60</item>\n        <item name="colorAccent">#27AE60</item>\n        <item name="android:windowBackground">@color/bg</item>\n    </style>\n</resources>\n')
-          w(f"{RES}/mipmap-hdpi/ic_launcher.png","")  # placeholder, gradle won't fail
+    
           print("All files generated!")
           PYEOF
 
