@@ -5,9 +5,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 import java.util.Calendar;
 
 public class AlarmScheduler {
+    private static final String TAG = "AlarmScheduler";
 
     public static void schedule(Context ctx, Reminder r) {
         if (!r.isEnabled()) return;
@@ -23,6 +25,7 @@ public class AlarmScheduler {
                 else
                     am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
             } catch (SecurityException ignored) {
+                Log.w(TAG, "Exact alarm permission denied, falling back to inexact alarm");
                 am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
             }
         } else

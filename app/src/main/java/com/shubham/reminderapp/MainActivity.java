@@ -17,7 +17,7 @@ public class MainActivity extends Activity implements PermissionHelper.Permissio
     private DatabaseHelper db;
     private List<Reminder> list;
     static final int REQ_ADD=1, REQ_EDIT=2;
-    private boolean exactAlarmPermissionRequested = false;
+    private boolean pendingExactAlarmPermissionCheck = false;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements PermissionHelper.Permissio
     private void requestRuntimePermissions() {
         PermissionHelper.requestPostNotificationsPermission(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !PermissionHelper.canScheduleExactAlarms(this)) {
-            exactAlarmPermissionRequested = true;
+            pendingExactAlarmPermissionCheck = true;
             PermissionHelper.requestExactAlarmPermission(this);
         }
     }
@@ -94,8 +94,8 @@ public class MainActivity extends Activity implements PermissionHelper.Permissio
     @Override protected void onResume() {
         super.onResume();
         load();
-        if (exactAlarmPermissionRequested) {
-            exactAlarmPermissionRequested = false;
+        if (pendingExactAlarmPermissionCheck) {
+            pendingExactAlarmPermissionCheck = false;
             PermissionHelper.dispatchExactAlarmPermissionState(this, this);
         }
     }
