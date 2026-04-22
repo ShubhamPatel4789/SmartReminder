@@ -41,6 +41,7 @@ public class ReminderAlarmReceiver extends BroadcastReceiver {
     }
 
     private void showNotification(Context ctx, int id, String title, String msg, String cat) {
+        if (!PermissionUtils.hasPostNotificationsPermission(ctx)) return;
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationChannel ch = new NotificationChannel(CH, "Smart Reminders", NotificationManager.IMPORTANCE_HIGH);
