@@ -26,7 +26,7 @@ jobs:
       # Otherwise remove it and build checked-in sources directly.
 
       - name: Build Debug APK
-        run: gradle assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Build release APK (debug-signed for testing)
         run: ./gradlew assembleRelease --stacktrace
