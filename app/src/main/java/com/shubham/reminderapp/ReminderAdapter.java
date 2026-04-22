@@ -22,32 +22,37 @@ public class ReminderAdapter extends BaseAdapter {
     @Override public long getItemId(int p) { return list.get(p).getId(); }
 
     @Override public View getView(int pos, View cv, ViewGroup parent) {
-        if (cv == null) cv = LayoutInflater.from(ctx).inflate(R.layout.item_reminder, parent, false);
-        Reminder r = list.get(pos);
+    if (cv == null) cv = LayoutInflater.from(ctx).inflate(R.layout.item_reminder, parent, false);
+    final View rowView = cv;   // make captured view effectively final
+    Reminder r = list.get(pos);
 
-        ((TextView) cv.findViewById(R.id.tv_emoji)).setText(emoji(r.getCategory()));
-        ((TextView) cv.findViewById(R.id.tv_title)).setText(r.getTitle());
-        ((TextView) cv.findViewById(R.id.tv_dt)).setText(sdf.format(new Date(r.getDatetimeMillis())));
+    ((TextView) rowView.findViewById(R.id.tv_emoji)).setText(emoji(r.getCategory()));
+    ((TextView) rowView.findViewById(R.id.tv_title)).setText(r.getTitle());
+    ((TextView) rowView.findViewById(R.id.tv_dt)).setText(sdf.format(new Date(r.getDatetimeMillis())));
 
-        TextView tvRec = (TextView) cv.findViewById(R.id.tv_recur);
-        if (r.isRecurring() && r.getRecurType() != null) {
-            tvRec.setVisibility(View.VISIBLE); tvRec.setText(recurLabel(r));
-        } else { tvRec.setVisibility(View.GONE); }
+    TextView tvRec = (TextView) rowView.findViewById(R.id.tv_recur);
+    if (r.isRecurring() && r.getRecurType() != null) {
+        tvRec.setVisibility(View.VISIBLE);
+        tvRec.setText(recurLabel(r));
+    } else {
+        tvRec.setVisibility(View.GONE);
+    }
 
-        cv.findViewById(R.id.color_bar).setBackgroundColor(barColor(r.getCategory()));
+    rowView.findViewById(R.id.color_bar).setBackgroundColor(barColor(r.getCategory()));
 
-        Switch sw = (Switch) cv.findViewById(R.id.sw);
-        sw.setOnCheckedChangeListener(null);
-        sw.setChecked(r.isEnabled());
-        sw.setOnCheckedChangeListener((btn, checked) -> {
-            r.setEnabled(checked);
-            db.setEnabled(r.getId(), checked);
-            if (checked) AlarmScheduler.schedule(ctx, r);
-            else AlarmScheduler.cancel(ctx, r.getId());
-            cv.setAlpha(checked ? 1f : 0.5f);
-        });
-        cv.setAlpha(r.isEnabled() ? 1f : 0.5f);
-        return cv;
+    Switch sw = (Switch) rowView.findViewById(R.id.sw);
+    sw.setOnCheckedChangeListener(null);
+    sw.setChecked(r.isEnabled());
+    sw.setOnCheckedChangeListener((btn, checked) -> {
+        r.setEnabled(checked);
+        db.setEnabled(r.getId(), checked);
+        if (checked) AlarmScheduler.schedule(ctx, r);
+        else AlarmScheduler.cancel(ctx, r.getId());
+        rowView.setAlpha(checked ? 1f : 0.5f);
+    });
+
+    rowView.setAlpha(r.isEnabled() ? 1f : 0.5f);
+    return rowView;
     }
 
     private String emoji(String c) {
