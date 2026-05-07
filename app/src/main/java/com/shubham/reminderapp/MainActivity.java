@@ -2,6 +2,7 @@ package com.shubham.reminderapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +16,8 @@ public class MainActivity extends Activity {
     private DatabaseHelper db;
     private List<Reminder> list;
     static final int REQ_ADD=1, REQ_EDIT=2;
+    private static final int REQ_POST_NOTIFICATIONS = 10;
+    private static final int REQ_EXACT_ALARM = 11;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -54,6 +57,8 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+
+        requestRuntimePermissions();
     }
 
     private void load() {
@@ -63,6 +68,42 @@ public class MainActivity extends Activity {
         findViewById(R.id.tv_empty).setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
-    @Override protected void onActivityResult(int req, int res, Intent data) { if(res==RESULT_OK) load(); }
+    private void requestRuntimePermissions() {
+        if (PermissionUtils.requestPostNotificationsIfNeeded(this, REQ_POST_NOTIFICATIONS)) return;
+        requestExactAlarmPermissionIfNeeded();
+    }
+
+    private void requestExactAlarmPermissionIfNeeded() {
+        if (!PermissionUtils.canScheduleExactAlarms(this)) {
+            try {
+                PermissionUtils.requestExactAlarmPermission(this, REQ_EXACT_ALARM);
+            } catch (ActivityNotFoundException | SecurityException ignored) {
+                Toast.makeText(this, R.string.msg_exact_alarm_fallback, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req == REQ_EXACT_ALARM) {
+            if (!PermissionUtils.canScheduleExactAlarms(this)) {
+                Toast.makeText(this, R.string.msg_exact_alarm_fallback, Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+        if (res == RESULT_OK) load();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_POST_NOTIFICATIONS) {
+            if (!PermissionUtils.hasPostNotificationsPermission(this)) {
+                Toast.makeText(this, R.string.msg_notifications_denied, Toast.LENGTH_SHORT).show();
+            }
+            requestExactAlarmPermissionIfNeeded();
+        }
+    }
+
     @Override protected void onResume() { super.onResume(); load(); }
 }

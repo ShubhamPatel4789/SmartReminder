@@ -12,13 +12,25 @@ public class AlarmScheduler {
     public static void schedule(Context ctx, Reminder r) {
         if (!r.isEnabled()) return;
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
         PendingIntent pi = buildPI(ctx, r);
         long trigger = r.getDatetimeMillis();
         if (!r.isRecurring() && trigger < System.currentTimeMillis()) return;
-        if (Build.VERSION.SDK_INT >= 23)
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
-        else
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (PermissionUtils.canScheduleExactAlarms(ctx)) {
+                try {
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                } catch (SecurityException e) {
+                    // Permission state can change between check and schedule; fallback keeps reminder delivery.
+                    am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+                }
+            } else {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi);
+            }
+        } else {
             am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi);
+        }
     }
 
     public static void cancel(Context ctx, int id) {

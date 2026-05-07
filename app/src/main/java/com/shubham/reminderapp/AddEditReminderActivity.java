@@ -1,6 +1,7 @@
 package com.shubham.reminderapp;
 
 import android.app.*;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -21,6 +22,8 @@ public class AddEditReminderActivity extends Activity {
     private Calendar cal = Calendar.getInstance();
     private DatabaseHelper db;
     private int editId = -1;
+    private static final int REQ_POST_NOTIFICATIONS = 20;
+    private static final int REQ_EXACT_ALARM = 21;
     private SimpleDateFormat dfDate = new SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault());
     private SimpleDateFormat dfTime = new SimpleDateFormat("hh:mm a", Locale.getDefault());
 
@@ -69,6 +72,7 @@ public class AddEditReminderActivity extends Activity {
         rgType.setOnCheckedChangeListener((g,id)->updatePanels());
         btnSave.setOnClickListener(v->save());
         updatePanels();
+        requestRuntimePermissions();
     }
 
     private void updateBtns() {
@@ -130,7 +134,34 @@ public class AddEditReminderActivity extends Activity {
         }
         if(editId!=-1) { AlarmScheduler.cancel(this,editId); db.update(r); }
         else { long nid=db.insert(r); r.setId((int)nid); }
-        AlarmScheduler.schedule(this,r);
+
+        AlarmScheduler.schedule(this, r);
         setResult(RESULT_OK); finish();
+    }
+
+    private void requestRuntimePermissions() {
+        if (PermissionUtils.requestPostNotificationsIfNeeded(this, REQ_POST_NOTIFICATIONS)) return;
+        requestExactAlarmPermissionIfNeeded();
+    }
+
+    private void requestExactAlarmPermissionIfNeeded() {
+        if (!PermissionUtils.canScheduleExactAlarms(this)) {
+            try {
+                PermissionUtils.requestExactAlarmPermission(this, REQ_EXACT_ALARM);
+            } catch (ActivityNotFoundException | SecurityException ignored) {
+                Toast.makeText(this, R.string.msg_exact_alarm_fallback, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_POST_NOTIFICATIONS) {
+            if (!PermissionUtils.hasPostNotificationsPermission(this)) {
+                Toast.makeText(this, R.string.msg_notifications_denied, Toast.LENGTH_SHORT).show();
+            }
+            requestExactAlarmPermissionIfNeeded();
+        }
     }
 }
